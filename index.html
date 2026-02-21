@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      @font-face {
+        font-family: "Roboto";
+        src: url("./public/font/okine-regular-webfont.woff2");
+      }
+
+      h1 {
+        font-family: "Roboto";
+        font-size: 5rem;
+      }
+
+      a {
+        color: white;
+        text-decoration: none;
+      }
+
+      ul {
+        display: flex;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+
+        justify-content: center;
+        align-items: center;
+        & > li {
+          list-style: none;
+          margin: 0 -12%;
+          width: 15%;
+          font-size: 2vw;
+          letter-spacing: 20%;
+          &:hover {
+            text-decoration: underline;
+          }
+
+          &:nth-child(odd) {
+            transform-origin: center left;
+            transform: translate(0, -0px) rotate(-50deg);
+          }
+          &:nth-child(even) {
+            transform-origin: center left;
+            transform: translate(0, 0px) rotate(50deg);
+          }
+        }
+      }
+
+      .center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body style="background-color: #414833; display: flex">
+    <div
+      class="center"
+      style="
+        color: white;
+        background-color: #000000;
+        margin: auto;
+        aspect-ratio: 2/1;
+        width: 70%;
+      "
+    >
+      <div class="center left-side" style="flex-grow: 1">
+        <img
+          style="
+            aspect-ratio: 1/1;
+            height: auto;
+            max-width: 70%;
+            object-fit: cover;
+          "
+          src="public/img/start.jpg"
+        />
+      </div>
+      <div class="center right-side" style="width: 50%">
+        <ul>
+          <li><a href="https://www.gmail.com" target="_blank"> Gmail </a></li>
+          <li><a href="https://moodle.jku.at/" target="_blank"> Moodle </a></li>
+          <li>
+            <a href="https://www.youtube.com" target="_blank"> Youtube </a>
+          </li>
+          <li><a href="https://reddit.com/" target="_blank"> Reddit </a></li>
+          <li><a href="https://192.168.1.1" target="_blank"> Router </a></li>
+          <li><a href="https://github.com" target="_blank"> Github </a></li>
+          <li>
+            <a href="https://pinterest.com" target="_blank"> Pinterest </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
