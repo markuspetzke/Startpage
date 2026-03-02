@@ -46,9 +46,7 @@ function createMatrix(): MATRIX {
   for (let x = 0; x <= column_count; x += 1) {
     let cells: Cell[] = [];
     for (let y = 0; y <= row_count; y += 1) {
-      const letter = ALPHABET.charAt(
-        randomIntFromInterval(0, ALPHABET.length - 1),
-      );
+      const letter = randomChar();
 
       const cell: Cell = {
         position: y,
@@ -66,16 +64,12 @@ function tick(matrix: MATRIX) {
     const animationComplete = column.head === undefined;
     if (animationComplete && Math.random() > RAINDROP_SWPAN_RATE) {
       column.head = column.cells[0];
-      column.head.char = ALPHABET.charAt(
-        randomIntFromInterval(0, ALPHABET.length - 1),
-      );
+      column.head.char = randomChar();
     } else if (!animationComplete) {
       const nextCell = column.cells[column.head!.position + 1];
       if (nextCell) {
         column.head!.char = "";
-        nextCell.char = ALPHABET.charAt(
-          randomIntFromInterval(0, ALPHABET.length - 1),
-        );
+        nextCell.char = randomChar();
         column.head = nextCell;
       } else {
         column.head!.char = "";
@@ -85,6 +79,9 @@ function tick(matrix: MATRIX) {
   }
 }
 
+function randomChar() {
+  return ALPHABET.charAt(randomIntFromInterval(0, ALPHABET.length - 1));
+}
 function randomIntFromInterval(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
