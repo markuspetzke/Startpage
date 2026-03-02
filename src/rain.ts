@@ -8,6 +8,7 @@ type Cell = {
   position: number;
   char: string;
   activeFor: number;
+  color: Color;
 };
 type COLUMN = {
   cells: Cell[];
@@ -15,7 +16,15 @@ type COLUMN = {
   trail: number;
   ticksLeft: number;
 };
+
 type MATRIX = COLUMN[];
+
+const GREENS = ["#15803d", "#16a34a", "#22c55e", "#4ade80"] as const;
+const WHITE = "#f0fdf4";
+
+type Greens = (typeof GREENS)[number];
+
+type Color = typeof WHITE | Greens;
 
 const WIDTH = canvas.clientWidth;
 const HEIGHT = canvas.clientHeight;
@@ -33,7 +42,7 @@ if (ctx) {
 
   let matrix = createMatrix();
   window.setInterval(() => {
-    tick(matrix, ctx);
+    tick(matrix);
     render(matrix, ctx);
   }, 1000);
 }
@@ -51,6 +60,7 @@ function createMatrix(): MATRIX {
         position: y,
         char: randomChar(),
         activeFor: 0,
+        color: WHITE,
       };
       cells.push(cell);
     }
@@ -81,6 +91,11 @@ function tick(matrix: MATRIX) {
     }
     for (const cell of column.cells) {
       if (cell.activeFor > 0) {
+        if (column.head === cell) {
+          cell.color = WHITE;
+        } else {
+          cell.color = GREENS[randomIntFromInterval(0, GREENS.length - 1)];
+        }
         cell.char = randomChar();
         cell.activeFor -= 1;
       } else {
@@ -100,11 +115,11 @@ function randomIntFromInterval(min: number, max: number) {
 function render(matrix: MATRIX, ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = "rgb(0,16,0)";
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
-  ctx.fillStyle = "green";
   let x = 0;
   for (const column of matrix) {
     let y = 0;
     for (const cell of column.cells) {
+      ctx.fillStyle = cell.color;
       ctx.fillText(cell.char, x, y);
       y += CELL_SIZE;
     }
