@@ -14,7 +14,6 @@ type COLUMN = {
   cells: Cell[];
   head?: Cell;
   trail: number;
-  ticksLeft: number;
 };
 
 type MATRIX = COLUMN[];
@@ -64,7 +63,7 @@ function createMatrix(): MATRIX {
       };
       cells.push(cell);
     }
-    matrix.push({ cells, head: undefined, trail: 0, ticksLeft: 0 });
+    matrix.push({ cells, head: undefined, trail: 0 });
   }
   return matrix;
 }
@@ -74,7 +73,6 @@ function tick(matrix: MATRIX) {
     const animationComplete = column.head === undefined;
     if (animationComplete && Math.random() > RAINDROP_SWPAN_RATE) {
       column.trail = randomIntFromInterval(2, 5);
-      column.ticksLeft = column.trail + 2;
       column.head = column.cells[0];
       column.head.char = randomChar();
     } else {
@@ -87,7 +85,6 @@ function tick(matrix: MATRIX) {
           column.head = undefined;
         }
       }
-      column.ticksLeft -= 1;
     }
     for (const cell of column.cells) {
       if (cell.activeFor > 0) {
