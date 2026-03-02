@@ -7,10 +7,13 @@ const ctx = canvas.getContext("2d");
 type Cell = {
   position: number;
   char: string;
+  activeFor: number;
 };
 type COLUMN = {
   cells: Cell[];
   head?: Cell;
+  trail: number;
+  ticksLeft: number;
 };
 type MATRIX = COLUMN[];
 
@@ -30,9 +33,7 @@ if (ctx) {
 
   let matrix = createMatrix();
   window.setInterval(() => {
-    console.log("tick");
-
-    tick(matrix);
+    tick(matrix, ctx);
     render(matrix, ctx);
   }, 1000);
 }
@@ -46,15 +47,14 @@ function createMatrix(): MATRIX {
   for (let x = 0; x <= column_count; x += 1) {
     let cells: Cell[] = [];
     for (let y = 0; y <= row_count; y += 1) {
-      const letter = randomChar();
-
       const cell: Cell = {
         position: y,
-        char: letter,
+        char: randomChar(),
+        activeFor: 0,
       };
       cells.push(cell);
     }
-    matrix.push({ cells, head: undefined });
+    matrix.push({ cells, head: undefined, trail: 0, ticksLeft: 0 });
   }
   return matrix;
 }
@@ -63,17 +63,28 @@ function tick(matrix: MATRIX) {
   for (const column of matrix) {
     const animationComplete = column.head === undefined;
     if (animationComplete && Math.random() > RAINDROP_SWPAN_RATE) {
+      column.trail = randomIntFromInterval(2, 5);
+      column.ticksLeft = column.trail + 2;
       column.head = column.cells[0];
       column.head.char = randomChar();
-    } else if (!animationComplete) {
-      const nextCell = column.cells[column.head!.position + 1];
-      if (nextCell) {
-        column.head!.char = "";
-        nextCell.char = randomChar();
-        column.head = nextCell;
+    } else {
+      if (column.head) {
+        const nextCell = column.cells[column.head!.position + 1];
+        if (nextCell) {
+          column.head = nextCell;
+          nextCell.activeFor = column.trail;
+        } else {
+          column.head = undefined;
+        }
+      }
+      column.ticksLeft -= 1;
+    }
+    for (const cell of column.cells) {
+      if (cell.activeFor > 0) {
+        cell.char = randomChar();
+        cell.activeFor -= 1;
       } else {
-        column.head!.char = "";
-        column.head = undefined;
+        cell.char = "";
       }
     }
   }
