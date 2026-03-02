@@ -39,7 +39,7 @@ const ALPHABET = TEXT + NUMBER;
 let CELL_SIZE = Math.floor(width / 40);
 
 const RAINDROP_SWPAN_RATE = 0.8;
-const FRAME_RATE = 1000 / 20;
+const FRAME_RATE = 1000 / 15;
 
 let row_count = Math.floor(height / CELL_SIZE);
 let column_count = Math.floor(width / CELL_SIZE);
