@@ -39,7 +39,7 @@ const ALPHABET = TEXT + NUMBER;
 let CELL_SIZE = Math.floor(width / 40);
 
 const RAINDROP_SWPAN_RATE = 0.8;
-const FRAME_RATE = 1000 / 10;
+const FRAME_RATE = 1000 / 20;
 
 let row_count = Math.floor(height / CELL_SIZE);
 let column_count = Math.floor(width / CELL_SIZE);
@@ -76,7 +76,7 @@ function createMatrix(): MATRIX {
       };
       cells.push(cell);
     }
-    matrix.push({ cells, head: undefined, trail: 0, ticksLeft: 0, speed: 0 });
+    matrix.push({ cells, head: undefined, trail: 0, ticksLeft: 0, speed: 1 });
   }
   return matrix;
 }
@@ -84,7 +84,7 @@ function createMatrix(): MATRIX {
 let tickNo = 0;
 function tick(matrix: MATRIX) {
   for (const column of matrix) {
-    if (tickNo % column.speed === 0) {
+    if (tickNo % column.speed !== 0) {
       continue;
     }
     const animationComplete = column.ticksLeft <= 0;
@@ -93,7 +93,6 @@ function tick(matrix: MATRIX) {
       column.trail = randomIntFromInterval(3, 2 * row_count);
       column.ticksLeft = row_count + column.trail;
       column.head = column.cells[0];
-      column.head.char = randomChar();
     } else {
       if (column.head) {
         const nextCell = column.cells[column.head!.position + 1];
