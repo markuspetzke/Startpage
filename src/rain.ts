@@ -10,12 +10,13 @@ type Cell = {
 };
 type COLUMN = {
   cells: Cell[];
-  head: Cell;
+  head?: Cell;
 };
 type MATRIX = COLUMN[];
 
 const WIDTH = canvas.clientWidth;
 const HEIGHT = canvas.clientHeight;
+const RAINDROP_SWPAN_RATE = 0.8;
 canvas.height = HEIGHT;
 canvas.width = WIDTH;
 const TEXT = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -55,26 +56,31 @@ function createMatrix(): MATRIX {
       };
       cells.push(cell);
     }
-    matrix.push({ cells, head: cells[0] });
+    matrix.push({ cells, head: undefined });
   }
   return matrix;
 }
 
 function tick(matrix: MATRIX) {
   for (const column of matrix) {
-    const nextCell = column.cells[column.head.position + 1];
-
-    console.log(column.head.position + 1);
-
-    if (nextCell) {
-      column.head.char = "";
-      nextCell.char = ALPHABET.charAt(
+    const animationComplete = column.head === undefined;
+    if (animationComplete && Math.random() > RAINDROP_SWPAN_RATE) {
+      column.head = column.cells[0];
+      column.head.char = ALPHABET.charAt(
         randomIntFromInterval(0, ALPHABET.length - 1),
       );
-      column.head = nextCell;
-    } else {
-      column.head.char = "";
-      column.head = column.cells[0];
+    } else if (!animationComplete) {
+      const nextCell = column.cells[column.head!.position + 1];
+      if (nextCell) {
+        column.head!.char = "";
+        nextCell.char = ALPHABET.charAt(
+          randomIntFromInterval(0, ALPHABET.length - 1),
+        );
+        column.head = nextCell;
+      } else {
+        column.head!.char = "";
+        column.head = undefined;
+      }
     }
   }
 }
@@ -89,7 +95,7 @@ function render(matrix: MATRIX, ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = "green";
   let x = 0;
   for (const column of matrix) {
-    let y = CELL_SIZE;
+    let y = 0;
     for (const cell of column.cells) {
       ctx.fillText(cell.char, x, y);
       y += CELL_SIZE;
