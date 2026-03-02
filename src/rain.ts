@@ -35,6 +35,9 @@ const NUMBER = "1234567890";
 const ALPHABET = TEXT + NUMBER;
 const CELL_SIZE = 32;
 
+const ROW_COUNT = Math.floor(HEIGHT / CELL_SIZE);
+const COLUMN_COUNT = Math.floor(WIDTH / CELL_SIZE);
+
 if (ctx) {
   ctx.font = CELL_SIZE + "px mono ";
   ctx.fillStyle = "green";
@@ -52,9 +55,9 @@ function createMatrix(): MATRIX {
   const row_count = Math.floor(HEIGHT / CELL_SIZE);
   const column_count = Math.floor(WIDTH / CELL_SIZE);
 
-  for (let x = 0; x <= column_count; x += 1) {
+  for (let x = 0; x < column_count; x++) {
     let cells: Cell[] = [];
-    for (let y = 0; y <= row_count; y += 1) {
+    for (let y = 0; y <= row_count; y++) {
       const cell: Cell = {
         position: y,
         char: randomChar(),
@@ -72,7 +75,7 @@ function tick(matrix: MATRIX) {
   for (const column of matrix) {
     const animationComplete = column.head === undefined;
     if (animationComplete && Math.random() > RAINDROP_SWPAN_RATE) {
-      column.trail = randomIntFromInterval(2, 5);
+      column.trail = randomIntFromInterval(3, 2 * ROW_COUNT);
       column.head = column.cells[0];
       column.head.char = randomChar();
     } else {
@@ -110,7 +113,7 @@ function randomIntFromInterval(min: number, max: number) {
 }
 
 function render(matrix: MATRIX, ctx: CanvasRenderingContext2D) {
-  ctx.fillStyle = "rgb(0,16,0)";
+  ctx.fillStyle = "rgb(0,0,0)";
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
   let x = 0;
   for (const column of matrix) {
@@ -120,7 +123,6 @@ function render(matrix: MATRIX, ctx: CanvasRenderingContext2D) {
       ctx.fillText(cell.char, x, y);
       y += CELL_SIZE;
     }
-
     x += CELL_SIZE;
   }
 }
