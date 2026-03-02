@@ -7,13 +7,17 @@ const ctx = canvas.getContext("2d");
 type Cell = {
   position: number;
   char: string;
+  retainChar: number;
   activeFor: number;
   color: Color;
+  retainColor: number;
 };
 type COLUMN = {
   cells: Cell[];
   head?: Cell;
   trail: number;
+  ticksLeft: number;
+  speed: number;
 };
 
 type MATRIX = COLUMN[];
@@ -64,22 +68,30 @@ function createMatrix(): MATRIX {
     for (let y = 0; y <= row_count; y++) {
       const cell: Cell = {
         position: y,
-        char: randomChar(),
+        char: "",
+        retainChar: 0,
         activeFor: 0,
         color: WHITE,
+        retainColor: 0,
       };
       cells.push(cell);
     }
-    matrix.push({ cells, head: undefined, trail: 0 });
+    matrix.push({ cells, head: undefined, trail: 0, ticksLeft: 0, speed: 0 });
   }
   return matrix;
 }
 
+let tickNo = 0;
 function tick(matrix: MATRIX) {
   for (const column of matrix) {
-    const animationComplete = column.head === undefined;
+    if (tickNo % column.speed === 0) {
+      continue;
+    }
+    const animationComplete = column.ticksLeft <= 0;
     if (animationComplete && Math.random() > RAINDROP_SWPAN_RATE) {
+      column.speed = randomIntFromInterval(1, 6);
       column.trail = randomIntFromInterval(3, 2 * row_count);
+      column.ticksLeft = row_count + column.trail;
       column.head = column.cells[0];
       column.head.char = randomChar();
     } else {
@@ -92,21 +104,38 @@ function tick(matrix: MATRIX) {
           column.head = undefined;
         }
       }
+      column.ticksLeft -= 1;
     }
     for (const cell of column.cells) {
       if (cell.activeFor > 0) {
         if (column.head === cell) {
           cell.color = WHITE;
+          cell.retainColor = 0;
+
+          cell.char = randomChar();
+          cell.retainChar = randomIntFromInterval(1, 10);
         } else {
-          cell.color = GREENS[randomIntFromInterval(0, GREENS.length - 1)];
+          if (cell.retainColor <= 0) {
+            cell.color = GREENS[randomIntFromInterval(0, GREENS.length - 1)];
+            cell.retainColor = randomIntFromInterval(1, 10);
+          } else {
+            cell.retainColor -= 1;
+          }
+
+          if (cell.retainChar <= 0) {
+            cell.char = randomChar();
+            cell.retainChar = randomIntFromInterval(1, 10);
+          } else {
+            cell.retainChar -= 1;
+          }
         }
-        cell.char = randomChar();
         cell.activeFor -= 1;
       } else {
         cell.char = "";
       }
     }
   }
+  tickNo += 1;
 }
 
 function randomChar() {
