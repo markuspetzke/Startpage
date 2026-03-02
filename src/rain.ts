@@ -1,9 +1,3 @@
-const canvas: HTMLCanvasElement = document.getElementById(
-  "canvas-rain",
-) as HTMLCanvasElement;
-
-const ctx = canvas.getContext("2d");
-
 type Cell = {
   position: number;
   char: string;
@@ -22,42 +16,53 @@ type COLUMN = {
 
 type MATRIX = COLUMN[];
 
-const GREENS = ["#15803d", "#16a34a", "#22c55e", "#4ade80"] as const;
-const WHITE = "#f0fdf4";
-
 type Greens = (typeof GREENS)[number];
-
 type Color = typeof WHITE | Greens;
 
-let width = canvas.clientWidth;
-let height = canvas.clientHeight;
-canvas.height = height;
-canvas.width = width;
+const GREENS = ["#15803d", "#16a34a", "#22c55e", "#4ade80"] as const;
+const WHITE = "#f0fdf4";
 const TEXT = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const NUMBER = "1234567890";
 const ALPHABET = TEXT + NUMBER;
-let CELL_SIZE = Math.floor(width / 40);
-
 const RAINDROP_SWPAN_RATE = 0.8;
 const FRAME_RATE = 1000 / 15;
 
-let row_count = Math.floor(height / CELL_SIZE);
-let column_count = Math.floor(width / CELL_SIZE);
+let width: number;
+let height: number;
+
+let CELL_SIZE = 32;
+
+let row_count: number;
+let column_count: number;
 let matrix: MATRIX;
+let ctx: any;
+const canvas: HTMLCanvasElement = document.getElementById(
+  "canvas-rain",
+) as HTMLCanvasElement;
 
-ctx;
+if (canvas) {
+  ctx = canvas.getContext("2d");
+  width = canvas.clientWidth;
+  height = canvas.clientHeight;
+  canvas.height = height;
+  canvas.width = width;
 
-if (ctx) {
-  ctx.font = CELL_SIZE + "px mono ";
-  ctx.fillStyle = "green";
+  CELL_SIZE = Math.floor(width / 40);
+  row_count = Math.floor(height / CELL_SIZE);
+  column_count = Math.floor(width / CELL_SIZE);
 
-  window.addEventListener("resize", resizeCanvas);
+  if (ctx) {
+    ctx.font = CELL_SIZE + "px mono ";
+    ctx.fillStyle = "green";
 
-  matrix = createMatrix();
-  window.setInterval(() => {
-    tick(matrix);
-    render(matrix, ctx);
-  }, FRAME_RATE);
+    window.addEventListener("resize", resizeCanvas);
+
+    matrix = createMatrix();
+    window.setInterval(() => {
+      tick(matrix);
+      render(matrix, ctx);
+    }, FRAME_RATE);
+  }
 }
 
 function createMatrix(): MATRIX {
@@ -165,10 +170,9 @@ function resizeCanvas() {
   canvas.width = width;
   canvas.height = height;
 
+  CELL_SIZE = Math.floor(width / 40);
   row_count = Math.floor(height / CELL_SIZE);
   column_count = Math.floor(width / CELL_SIZE);
-
-  CELL_SIZE = Math.floor(width / 40);
 
   ctx!.font = CELL_SIZE + "px mono ";
   matrix = createMatrix();

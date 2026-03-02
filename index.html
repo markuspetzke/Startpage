@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <script src="./src/rain.ts"></script>
-    <!-- <script src="./rain.js"></script> -->
     <style>
       html,
       body {
@@ -77,17 +76,17 @@
         background-color: #000000;
       "
     >
-      <div class="center" style="flex: 1 1 0">
-        <div class="center left-side" style="height: 20%">
-          <!-- <img -->
-          <!--   style=" -->
-          <!--     aspect-ratio: 1/1; -->
-          <!--     height: auto; -->
-          <!--     width: 70%; -->
-          <!--     object-fit: cover; -->
-          <!--   " -->
-          <!--   src="public/img/start.jpg" -->
-          <!-- /> -->
+      <div class="center" style="flex: 3 1 0">
+        <div class="center left-side">
+          <img
+            style="
+              aspect-ratio: 1/1;
+              height: auto;
+              width: 17vw;
+              object-fit: cover;
+            "
+            src="public/img/start.jpg"
+          />
         </div>
         <div class="center right-side" style="width: 50%">
           <ul>
@@ -111,6 +110,7 @@
       </div>
       <div id="asci-rain" style="flex: 1 1 0; min-height: 0">
         <canvas id="canvas-rain" style="height: 100%; width: 100%"></canvas>
+        <!-- <script src="./rain.js"></script> -->
       </div>
     </div>
   </body>
