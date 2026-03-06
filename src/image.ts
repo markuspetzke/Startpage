@@ -27,30 +27,25 @@ function get_avg_color(image: ImageData) {
   let blockSize = 5;
 
   let count = 0;
-  var rgb = { r: 0, g: 0, b: 0 };
+  var rgb = { r: 0, g: 0, b: 0, a: 0 };
   let length = image.data.length;
 
   while ((i += blockSize * 4) < length) {
+    const r = image.data[i];
+    const g = image.data[i + 1];
+    const b = image.data[i + 2];
+    if (r < 30 || g < 30 || b < 30) continue;
+    if (r > 225 && g > 225 && b > 225) continue;
     count++;
-    rgb.r += image.data[i];
-    rgb.g += image.data[i + 1];
-    rgb.b += image.data[i + 2];
+    rgb.r += r;
+    rgb.g += g;
+    rgb.b += b;
   }
-  rgb.r = ~(rgb.r / count) * -1;
-  rgb.g = ~(rgb.g / count) * -1;
-  rgb.b = ~(rgb.b / count) * -1;
 
-  console.log("r: " + rgb.r);
-  console.log("g: " + rgb.g);
-  console.log("b: " + rgb.b);
-
+  if (count === 0) return;
+  rgb.r = Math.floor(rgb.r / count);
+  rgb.g = Math.floor(rgb.g / count);
+  rgb.b = Math.floor(rgb.b / count);
   let body = document.getElementById("body") as HTMLBodyElement;
-  body.style =
-    "background-color: RGB(" +
-    rgb.r +
-    "," +
-    rgb.g +
-    "," +
-    rgb.b +
-    "); display: flex";
+  body.style.backgroundColor = `rgb(${rgb.r},${rgb.g},${rgb.b})`;
 }
