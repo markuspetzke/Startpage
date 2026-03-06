@@ -78,15 +78,27 @@
     >
       <div class="center" style="flex: 3 1 0">
         <div class="center left-side">
-          <img
+          <!-- <img -->
+          <!--   id="image" -->
+          <!--   style=" -->
+          <!--     aspect-ratio: 1/1; -->
+          <!--     height: auto; -->
+          <!--     width: 17vw; -->
+          <!--     object-fit: cover; -->
+          <!--   " -->
+          <!--   src="public/img/start.jpg" -->
+          <!-- /> -->
+
+          <canvas
+            id="canvas-image"
             style="
+              background-color: white;
               aspect-ratio: 1/1;
               height: auto;
               width: 17vw;
-              object-fit: cover;
             "
-            src="public/img/start.jpg"
           />
+          <script src="./src/image.ts"></script>
         </div>
         <div class="center right-side" style="width: 50%">
           <ul>
@@ -110,7 +122,7 @@
       </div>
       <div id="asci-rain" style="flex: 1 1 0; min-height: 0">
         <canvas id="canvas-rain" style="height: 100%; width: 100%"></canvas>
-        <!-- <script src="./rain.js"></script> -->
+        <script src="./src/rain.ts"></script>
       </div>
     </div>
   </body>
