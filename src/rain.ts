@@ -1,3 +1,4 @@
+import { getAccentColorFromImage } from "./image";
 type Cell = {
   position: number;
   char: string;
@@ -16,10 +17,46 @@ type COLUMN = {
 
 type MATRIX = COLUMN[];
 
-type Greens = (typeof GREENS)[number];
-type Color = typeof WHITE | Greens;
+type Shades = string[number];
+type Color = typeof WHITE | Shades;
 
-const GREENS = ["#15803d", "#16a34a", "#22c55e", "#4ade80"] as const;
+getAccentColorFromImage((accentHex) => {
+  const accent_rgb = hexToRGB(accentHex);
+  const SHADES = [
+    adjustBrightness(accent_rgb, -30),
+    adjustBrightness(accent_rgb, -15),
+    accentHex,
+    adjustBrightness(accent_rgb, 15),
+    adjustBrightness(accent_rgb, 30),
+  ];
+
+  startRain(SHADES);
+});
+
+function hexToRGB(hex: string): [number, number, number] {
+  const numericValue = parseInt(hex.replace("#", ""), 16);
+  const r = (numericValue >> 16) & 0xff;
+  const g = (numericValue >> 8) & 0xff;
+  const b = numericValue & 0xff;
+  return [r, g, b];
+}
+
+function adjustBrightness([r, g, b]: number[], percent: number): string {
+  const newR = Math.min(
+    255,
+    Math.max(0, Math.floor(r + (percent / 100) * 255)),
+  );
+  const newG = Math.min(
+    255,
+    Math.max(0, Math.floor(g + (percent / 100) * 255)),
+  );
+  const newB = Math.min(
+    255,
+    Math.max(0, Math.floor(b + (percent / 100) * 255)),
+  );
+  return `rgb(${newR},${newG},${newB})`;
+}
+
 const WHITE = "#f0fdf4";
 const TEXT = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const NUMBER = "1234567890";
@@ -40,28 +77,30 @@ const canvas: HTMLCanvasElement = document.getElementById(
   "canvas-rain",
 ) as HTMLCanvasElement;
 
-if (canvas) {
-  ctx = canvas.getContext("2d");
-  width = canvas.clientWidth;
-  height = canvas.clientHeight;
-  canvas.height = height;
-  canvas.width = width;
+function startRain(SHADES: string[]) {
+  if (canvas) {
+    ctx = canvas.getContext("2d");
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
+    canvas.height = height;
+    canvas.width = width;
 
-  CELL_SIZE = Math.floor(width / 40);
-  row_count = Math.floor(height / CELL_SIZE);
-  column_count = Math.floor(width / CELL_SIZE);
+    CELL_SIZE = Math.floor(width / 40);
+    row_count = Math.floor(height / CELL_SIZE);
+    column_count = Math.floor(width / CELL_SIZE);
 
-  if (ctx) {
-    ctx.font = CELL_SIZE + "px mono ";
-    ctx.fillStyle = "green";
+    if (ctx) {
+      ctx.font = CELL_SIZE + "px mono ";
+      ctx.fillStyle = "green";
 
-    window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("resize", resizeCanvas);
 
-    matrix = createMatrix();
-    window.setInterval(() => {
-      tick(matrix);
-      render(matrix, ctx);
-    }, FRAME_RATE);
+      matrix = createMatrix();
+      window.setInterval(() => {
+        tick(matrix, SHADES);
+        render(matrix, ctx);
+      }, FRAME_RATE);
+    }
   }
 }
 
@@ -87,7 +126,7 @@ function createMatrix(): MATRIX {
 }
 
 let tickNo = 0;
-function tick(matrix: MATRIX) {
+function tick(matrix: MATRIX, SHADES: string[]) {
   for (const column of matrix) {
     if (tickNo % column.speed !== 0) {
       continue;
@@ -120,7 +159,7 @@ function tick(matrix: MATRIX) {
           cell.retainChar = randomIntFromInterval(1, 10);
         } else {
           if (cell.retainColor <= 0) {
-            cell.color = GREENS[randomIntFromInterval(0, GREENS.length - 1)];
+            cell.color = SHADES[randomIntFromInterval(0, SHADES.length - 1)];
             cell.retainColor = randomIntFromInterval(1, 10);
           } else {
             cell.retainColor -= 1;

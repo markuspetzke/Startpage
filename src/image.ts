@@ -1,10 +1,38 @@
 import startImage from "../public/img/start.jpg";
+let ACCENT_COLOR: string = "#15803d";
 let canvas_image: HTMLCanvasElement = document.getElementById(
   "canvas-image",
 ) as HTMLCanvasElement;
 
+function rgbToHex({ r, g, b }: { r: number; g: number; b: number }): string {
+  const hr = r.toString(16).padStart(2, "0");
+  const hg = g.toString(16).padStart(2, "0");
+  const hb = b.toString(16).padStart(2, "0");
+  return `#${hr}${hg}${hb}`;
+}
+
+export function getAccentColorFromImage(onAccent: (hexColor: string) => void) {
+  if (!canvas_image) return;
+
+  const ctx = canvas_image.getContext("2d");
+  const width = canvas_image.clientWidth;
+  const height = canvas_image.clientHeight;
+  canvas_image.width = width;
+  canvas_image.height = height;
+
+  if (!ctx) return;
+
+  const image = new Image();
+  image.onload = () => {
+    ctx.drawImage(image, 0, 0, width, height);
+    const { accent_rgb } = get_avg_color(ctx.getImageData(0, 0, width, height));
+    ACCENT_COLOR = rgbToHex(accent_rgb);
+    onAccent(ACCENT_COLOR);
+  };
+  image.src = startImage;
+}
+
 if (canvas_image) {
-  console.log("canvas_image");
   let ctx_image = canvas_image.getContext("2d");
   let width = canvas_image.clientWidth;
   let height = canvas_image.clientHeight;
@@ -20,6 +48,7 @@ if (canvas_image) {
         ctx_image.getImageData(0, 0, width, height),
       );
 
+      ACCENT_COLOR = rgbToHex(accent_rgb);
       let a = document.querySelectorAll("a");
       a.forEach((item) => {
         item.style.color = `rgb(${accent_rgb.r},${accent_rgb.g},${accent_rgb.b})`;
