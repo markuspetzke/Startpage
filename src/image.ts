@@ -4,6 +4,7 @@ let canvas_image: HTMLCanvasElement = document.getElementById(
   "canvas-image",
 ) as HTMLCanvasElement;
 
+const image = new Image();
 export function getAccentColorFromImage(onAccent: (hexColor: string) => void) {
   if (!canvas_image) return;
 
@@ -15,8 +16,8 @@ export function getAccentColorFromImage(onAccent: (hexColor: string) => void) {
 
   if (!ctx) return;
 
-  const image = new Image();
   image.onload = () => {
+    window.addEventListener("resize", resizeImage);
     ctx.drawImage(image, 0, 0, width, height);
     const { accent_rgb, bg_rgb } = get_avg_color(
       ctx.getImageData(0, 0, width, height),
@@ -93,6 +94,8 @@ function resizeImage() {
   let height = canvas_image.clientHeight;
   canvas_image.height = height;
   canvas_image.width = width;
+  console.log("test");
+  canvas_image.getContext("2d")?.drawImage(image, 0, 0, width, height);
 }
 
 function rgbToHex({ r, g, b }: { r: number; g: number; b: number }): string {
