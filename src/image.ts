@@ -4,13 +4,6 @@ let canvas_image: HTMLCanvasElement = document.getElementById(
   "canvas-image",
 ) as HTMLCanvasElement;
 
-function rgbToHex({ r, g, b }: { r: number; g: number; b: number }): string {
-  const hr = r.toString(16).padStart(2, "0");
-  const hg = g.toString(16).padStart(2, "0");
-  const hb = b.toString(16).padStart(2, "0");
-  return `#${hr}${hg}${hb}`;
-}
-
 export function getAccentColorFromImage(onAccent: (hexColor: string) => void) {
   if (!canvas_image) return;
 
@@ -25,40 +18,19 @@ export function getAccentColorFromImage(onAccent: (hexColor: string) => void) {
   const image = new Image();
   image.onload = () => {
     ctx.drawImage(image, 0, 0, width, height);
-    const { accent_rgb } = get_avg_color(ctx.getImageData(0, 0, width, height));
+    const { accent_rgb, bg_rgb } = get_avg_color(
+      ctx.getImageData(0, 0, width, height),
+    );
     ACCENT_COLOR = rgbToHex(accent_rgb);
     onAccent(ACCENT_COLOR);
+
+    document.querySelectorAll("a").forEach((item) => {
+      item.style.color = `rgb(${accent_rgb.r},${accent_rgb.g},${accent_rgb.b})`;
+    });
+    document.querySelector("body")!.style.backgroundColor =
+      `rgb(${bg_rgb.r},${bg_rgb.g},${bg_rgb.b})`;
   };
   image.src = startImage;
-}
-
-if (canvas_image) {
-  let ctx_image = canvas_image.getContext("2d");
-  let width = canvas_image.clientWidth;
-  let height = canvas_image.clientHeight;
-  canvas_image.height = height;
-  canvas_image.width = width;
-
-  if (ctx_image) {
-    let image = new Image();
-
-    image.onload = function () {
-      ctx_image.drawImage(image, 0, 0, width, height);
-      let { accent_rgb, bg_rgb } = get_avg_color(
-        ctx_image.getImageData(0, 0, width, height),
-      );
-
-      ACCENT_COLOR = rgbToHex(accent_rgb);
-      let a = document.querySelectorAll("a");
-      a.forEach((item) => {
-        item.style.color = `rgb(${accent_rgb.r},${accent_rgb.g},${accent_rgb.b})`;
-      });
-
-      let body = document.querySelector("body") as HTMLBodyElement;
-      body.style.backgroundColor = `rgb(${bg_rgb.r},${bg_rgb.g},${bg_rgb.b})`;
-    };
-    image.src = startImage;
-  }
 }
 
 function get_avg_color(image: ImageData) {
@@ -114,4 +86,18 @@ function getSaturation(r: number, g: number, b: number) {
 
   if (max === 0) return 0;
   return delta / max;
+}
+
+function resizeImage() {
+  let width = canvas_image.clientWidth;
+  let height = canvas_image.clientHeight;
+  canvas_image.height = height;
+  canvas_image.width = width;
+}
+
+function rgbToHex({ r, g, b }: { r: number; g: number; b: number }): string {
+  const hr = r.toString(16).padStart(2, "0");
+  const hg = g.toString(16).padStart(2, "0");
+  const hb = b.toString(16).padStart(2, "0");
+  return `#${hr}${hg}${hb}`;
 }
