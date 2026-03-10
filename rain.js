@@ -19,7 +19,7 @@
     image.onload = () => {
       window.addEventListener("resize", resizeImage);
       ctx.drawImage(image, 0, 0, width, height);
-      const { accent_rgb, bg_rgb } = get_avg_color(start_default);
+      const { accent_rgb, bg_rgb } = get_avg_color(ctx.getImageData(0, 0, width, height));
       ACCENT_COLOR = rgbToHex(accent_rgb);
       onAccent(ACCENT_COLOR);
       document.querySelectorAll("a").forEach((item) => {
