@@ -19,9 +19,11 @@ export function getAccentColorFromImage(onAccent: (hexColor: string) => void) {
   image.onload = () => {
     window.addEventListener("resize", resizeImage);
     ctx.drawImage(image, 0, 0, width, height);
+
     const { accent_rgb, bg_rgb } = get_avg_color(
       ctx.getImageData(0, 0, width, height),
     );
+
     ACCENT_COLOR = rgbToHex(accent_rgb);
     onAccent(ACCENT_COLOR);
 
@@ -31,6 +33,7 @@ export function getAccentColorFromImage(onAccent: (hexColor: string) => void) {
     document.querySelector("body")!.style.backgroundColor =
       `rgb(${bg_rgb.r},${bg_rgb.g},${bg_rgb.b})`;
   };
+
   image.src = startImage;
 }
 
