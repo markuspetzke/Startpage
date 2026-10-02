@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "bun run index.html",
-    "build": "bun build ./src/rain.ts --outfile=rain.js --target=browser --format=iife --outdir ./"
+    "dev": "bun run dev.ts",
+    "build": "bun build ./src/rain.ts --target=browser --format=iife --minify --outdir ./"
   }
 }

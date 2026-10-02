@@ -1,60 +1,60 @@
 import startImage from "../public/img/start.jpg";
-let ACCENT_COLOR: string = "#15803d";
-let canvas_image: HTMLCanvasElement = document.getElementById(
+
+type RGB = { r: number; g: number; b: number };
+
+const FALLBACK_ACCENT: RGB = { r: 0x15, g: 0x80, b: 0x3d };
+const SAMPLE_SIZE = 100;
+
+const canvas_image = document.getElementById(
   "canvas-image",
-) as HTMLCanvasElement;
+) as HTMLCanvasElement | null;
 
 const image = new Image();
+
 export function getAccentColorFromImage(onAccent: (hexColor: string) => void) {
   if (!canvas_image) return;
 
-  const ctx = canvas_image.getContext("2d");
-  const width = canvas_image.clientWidth;
-  const height = canvas_image.clientHeight;
-  canvas_image.width = width;
-  canvas_image.height = height;
-
-  if (!ctx) return;
-
   image.onload = () => {
-    window.addEventListener("resize", resizeImage);
-    ctx.drawImage(image, 0, 0, width, height);
+    drawImage();
+    window.addEventListener("resize", onResize);
 
-    const { accent_rgb, bg_rgb } = get_avg_color(
-      ctx.getImageData(0, 0, width, height),
-    );
+    const { accent_rgb, bg_rgb } = get_avg_color(sampleImage());
 
-    ACCENT_COLOR = rgbToHex(accent_rgb);
-    onAccent(ACCENT_COLOR);
+    const root = document.documentElement.style;
+    root.setProperty("--accent", toCss(accent_rgb));
+    root.setProperty("--bg", toCss(bg_rgb));
 
-    document.querySelectorAll("a").forEach((item) => {
-      item.style.color = `rgb(${accent_rgb.r},${accent_rgb.g},${accent_rgb.b})`;
-    });
-    document.querySelector("body")!.style.backgroundColor =
-      `rgb(${bg_rgb.r},${bg_rgb.g},${bg_rgb.b})`;
+    onAccent(rgbToHex(accent_rgb));
   };
 
   image.src = startImage;
 }
 
-function get_avg_color(image: ImageData) {
-  let i = -4;
-  let blockSize = 5;
+// Farben aus einer kleinen Offscreen-Kopie lesen, unabhängig von der Anzeigegröße
+function sampleImage(): ImageData {
+  const sample = document.createElement("canvas");
+  sample.width = SAMPLE_SIZE;
+  sample.height = SAMPLE_SIZE;
+  const ctx = sample.getContext("2d", { willReadFrequently: true })!;
+  ctx.drawImage(image, 0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
+  return ctx.getImageData(0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
+}
 
+function get_avg_color(image: ImageData) {
   let totalWeight = 0;
   let weightedR = 0,
     weightedG = 0,
     weightedB = 0;
 
-  var bg_rgb = { r: 0, g: 0, b: 0 };
+  let bg_rgb: RGB = FALLBACK_ACCENT;
   let bestSaturation: number = 0;
 
-  let length = image.data.length;
+  const data = image.data;
 
-  while ((i += blockSize * 4) < length) {
-    const r = image.data[i];
-    const g = image.data[i + 1];
-    const b = image.data[i + 2];
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
     if (r < 30 && g < 30 && b < 30) continue;
     if (r > 225 && g > 225 && b > 225) continue;
 
@@ -70,6 +70,11 @@ function get_avg_color(image: ImageData) {
       bg_rgb = { r, g, b };
     }
   }
+
+  if (totalWeight === 0) {
+    return { accent_rgb: FALLBACK_ACCENT, bg_rgb };
+  }
+
   const accent_rgb = {
     r: Math.floor(weightedR / totalWeight),
     g: Math.floor(weightedG / totalWeight),
@@ -80,28 +85,34 @@ function get_avg_color(image: ImageData) {
 }
 
 function getSaturation(r: number, g: number, b: number) {
-  const rNorm = r / 255;
-  const gNorm = g / 255;
-  const bNorm = b / 255;
-
-  const max = Math.max(rNorm, gNorm, bNorm);
-  const min = Math.min(rNorm, gNorm, bNorm);
-  const delta = max - min;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
 
   if (max === 0) return 0;
-  return delta / max;
+  return (max - min) / max;
 }
 
-function resizeImage() {
-  let width = canvas_image.clientWidth;
-  let height = canvas_image.clientHeight;
-  canvas_image.height = height;
+function drawImage() {
+  if (!canvas_image) return;
+  const dpr = window.devicePixelRatio || 1;
+  const width = Math.round(canvas_image.clientWidth * dpr);
+  const height = Math.round(canvas_image.clientHeight * dpr);
   canvas_image.width = width;
-  console.log("test");
+  canvas_image.height = height;
   canvas_image.getContext("2d")?.drawImage(image, 0, 0, width, height);
 }
 
-function rgbToHex({ r, g, b }: { r: number; g: number; b: number }): string {
+let resizeFrame = 0;
+function onResize() {
+  cancelAnimationFrame(resizeFrame);
+  resizeFrame = requestAnimationFrame(drawImage);
+}
+
+function toCss({ r, g, b }: RGB): string {
+  return `rgb(${r},${g},${b})`;
+}
+
+function rgbToHex({ r, g, b }: RGB): string {
   const hr = r.toString(16).padStart(2, "0");
   const hg = g.toString(16).padStart(2, "0");
   const hb = b.toString(16).padStart(2, "0");

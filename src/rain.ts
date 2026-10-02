@@ -72,36 +72,52 @@ let CELL_SIZE = 32;
 let row_count: number;
 let column_count: number;
 let matrix: MATRIX;
-let ctx: any;
-const canvas: HTMLCanvasElement = document.getElementById(
+let ctx: CanvasRenderingContext2D | null;
+const canvas = document.getElementById(
   "canvas-rain",
-) as HTMLCanvasElement;
+) as HTMLCanvasElement | null;
 
 function startRain(SHADES: string[]) {
-  if (canvas) {
-    ctx = canvas.getContext("2d");
-    width = canvas.clientWidth;
-    height = canvas.clientHeight;
-    canvas.height = height;
-    canvas.width = width;
+  if (!canvas) return;
+  ctx = canvas.getContext("2d", { alpha: false });
+  if (!ctx) return;
 
-    CELL_SIZE = Math.floor(width / 40);
-    row_count = Math.floor(height / CELL_SIZE);
-    column_count = Math.floor(width / CELL_SIZE);
+  setupCanvas();
 
-    if (ctx) {
-      ctx.font = CELL_SIZE + "px mono ";
-      ctx.fillStyle = "green";
+  let resizeFrame = 0;
+  window.addEventListener("resize", () => {
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(setupCanvas);
+  });
 
-      window.addEventListener("resize", resizeCanvas);
-
-      matrix = createMatrix();
-      window.setInterval(() => {
-        tick(matrix, SHADES);
-        render(matrix, ctx);
-      }, FRAME_RATE);
+  // requestAnimationFrame pausiert automatisch in Hintergrund-Tabs
+  let lastFrame = 0;
+  const loop = (now: number) => {
+    if (now - lastFrame >= FRAME_RATE) {
+      lastFrame = now;
+      tick(matrix, SHADES);
+      render(matrix, ctx!);
     }
-  }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+function setupCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  width = canvas!.clientWidth;
+  height = canvas!.clientHeight;
+  canvas!.width = Math.round(width * dpr);
+  canvas!.height = Math.round(height * dpr);
+
+  CELL_SIZE = Math.max(1, Math.floor(width / 40));
+  row_count = Math.floor(height / CELL_SIZE);
+  column_count = Math.floor(width / CELL_SIZE);
+
+  ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx!.font = CELL_SIZE + "px monospace";
+  ctx!.textBaseline = "top";
+  matrix = createMatrix();
 }
 
 function createMatrix(): MATRIX {
@@ -109,7 +125,7 @@ function createMatrix(): MATRIX {
 
   for (let x = 0; x < column_count; x++) {
     let cells: Cell[] = [];
-    for (let y = 0; y <= row_count; y++) {
+    for (let y = 0; y < row_count; y++) {
       const cell: Cell = {
         position: y,
         char: "",
@@ -195,24 +211,12 @@ function render(matrix: MATRIX, ctx: CanvasRenderingContext2D) {
   for (const column of matrix) {
     let y = 0;
     for (const cell of column.cells) {
-      ctx.fillStyle = cell.color;
-      ctx.fillText(cell.char, x, y);
+      if (cell.char) {
+        ctx.fillStyle = cell.color;
+        ctx.fillText(cell.char, x, y);
+      }
       y += CELL_SIZE;
     }
     x += CELL_SIZE;
   }
-}
-
-function resizeCanvas() {
-  width = canvas.clientWidth;
-  height = canvas.clientHeight;
-  canvas.width = width;
-  canvas.height = height;
-
-  CELL_SIZE = Math.floor(width / 40);
-  row_count = Math.floor(height / CELL_SIZE);
-  column_count = Math.floor(width / CELL_SIZE);
-
-  ctx!.font = CELL_SIZE + "px mono ";
-  matrix = createMatrix();
 }

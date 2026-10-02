@@ -1,15 +1,27 @@
 <!doctype html>
-<html>
+<html lang="de">
   <head>
     <meta charset="utf-8" />
-    <script src="./src/rain.ts"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Startpage</title>
+    <script src="./rain.js" defer></script>
     <style>
+      :root {
+        --accent: #ffffff;
+        --bg: #414833;
+      }
+
       html,
       body {
         margin: 0;
         padding: 0;
         height: 100%;
         width: 100%;
+      }
+
+      body {
+        display: flex;
+        background-color: var(--bg);
       }
 
       @font-face {
@@ -23,7 +35,7 @@
       }
 
       a {
-        color: white;
+        color: var(--accent);
         text-decoration: none;
       }
 
@@ -63,7 +75,7 @@
       }
     </style>
   </head>
-  <body id="body" style="background-color: #414833; display: flex">
+  <body>
     <div
       style="
         margin: auto;
@@ -86,8 +98,7 @@
               height: auto;
               width: 17vw;
             "
-          />
-          <script src="./image.js"></script>
+          ></canvas>
         </div>
         <div class="center right-side" style="width: 50%">
           <ul>
@@ -110,8 +121,10 @@
         </div>
       </div>
       <div id="asci-rain" style="flex: 1 1 0; min-height: 0">
-        <canvas id="canvas-rain" style="height: 100%; width: 100%"></canvas>
-        <script src="./rain.js"></script>
+        <canvas
+          id="canvas-rain"
+          style="display: block; height: 100%; width: 100%"
+        ></canvas>
       </div>
     </div>
   </body>
